@@ -1,0 +1,43 @@
+body{
+    margin:0;
+    font-family: 'Source Sans Pro', sans-serif;
+    background-color: #EAEDED;
+}
+
+header {
+    background-color:#0F1111;
+}
+
+.sidebar{
+    display: flex;
+    height: 70px;
+    align-items: center;
+    justify-content: space-between;
+    margin-left: 30px;
+    box-sizing: border-box;
+}
+.sidebar img{
+    height: 50%;
+}
+.sidebar_categories{
+    list-style: none;
+    display: flex;
+    margin: auto;
+}
+.sidebar_categories li{
+    margin-right: 30px;
+}
+.sidebar_categories li button{
+    background-color: transparent;
+    border: none;
+    color: white;
+    padding: 10px;
+    font-size: 16px;
+    cursor:pointer;
+}
+
+.sidebar_categories li button:hover{
+    color:rgb(255, 157, 0);
+    transition: color 0.3s;
+    transform:scale(1.1)
+}
