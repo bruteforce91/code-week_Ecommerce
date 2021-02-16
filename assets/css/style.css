@@ -3,11 +3,11 @@ body {
   font-family: "Source Sans Pro", sans-serif;
   background-color: #eaeded;
   position: relative;
-  /* height: 100vh; */
+  height: 200vh;
 }
 
 .is-blur {
-  filter: blur(0.8rem);
+  filter: blur(0.19rem);
 }
 
 header {
@@ -74,7 +74,10 @@ header {
     margin-right: 30px;
     letter-spacing: 1px;
 }
-
+.sidebar__login span{
+  font-size: 20px;
+  color:rgb(255, 157, 0);
+}
 
 .toast {
     position: fixed;
@@ -95,6 +98,19 @@ header {
     border-end-end-radius: 10px;
   }
   
+ .successfulLogin{
+    left: 5%;
+    right:5%;
+    background-color: rgba(154, 255, 72, 0.95);
+    font-weight: bold;
+  }
+
+  .unsuccessfulLogin{
+    left: 5%;
+    right:5%;
+    background-color: rgba(214, 41, 41, 0.95);
+    font-weight: bold;
+  }
   .is-hidden {
     transform: translateY(-100px);
     opacity: 0;
@@ -120,6 +136,7 @@ header {
   box-sizing: border-box;
   margin-bottom: 20px;
 }
+
 .wrap__items-title {
   font-size: 24px;
   margin-bottom: 10px;
@@ -137,7 +154,14 @@ a {
   padding: 10px 0 0 0;
   margin: 6px;
   box-sizing: border-box;
+  cursor: pointer;
 }
+
+.wrap__items-card:hover{
+  transform: translateY(-15px);
+  transition: all 250ms ease-in-out;
+}
+
 
 .wrap__items-card img {
   width: 60%;
@@ -225,9 +249,10 @@ h5 {
     position: absolute;
     top: 50%;
     left: 50%;
-	border: 0.4em dotted rgb(221, 141, 14);
-	border-radius: 50%;
-	animation: 1s loader-01 linear infinite;
+    z-index:100;
+	  border: 0.4em dotted rgb(221, 141, 14);
+	  border-radius: 50%;
+	  animation: 1s loader-01 linear infinite;
     width: 40px;
     height: 40px;
 }

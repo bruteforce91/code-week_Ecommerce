@@ -1,10 +1,18 @@
-//
-const wrapAllProducts = document.querySelector(".wrap");
+
+//sidebar
+const listCategories=document.querySelector('.sidebar_categories');
+
+
+//loader e toast
 const loader = document.querySelector(".loader-01");
 const toast = document.querySelector(".toast");
+
+//wrap products
+const wrapAllProducts = document.querySelector(".wrap");
+//modal
 const modal = document.querySelector(".modal");
 const modal_body = document.querySelector(".modal__body");
-const formLogin = document.querySelector(".formLogin");
+const modal_overlay=document.querySelector(".modal__overlay")
 
 //btn
 const btnLogin = document.querySelector(".sidebar__login");
@@ -12,6 +20,7 @@ const btnForm = document.querySelector(".modal__body-wrap-btnForm");
 const btnOpenModalSign = document.querySelector(".modal__body-wrap-sign");
 
 //wrap login form
+const formLogin = document.querySelector(".formLogin");
 const wrapLogin = document.querySelector(".modal__body-wrap-login");
 
 //wrap sign form
@@ -19,6 +28,7 @@ const wrapSign = document.querySelector(".modal__body-wrap-sign");
 //form
 const label = document.querySelector(".label_input");
 const input = document.querySelector(".input");
+
 let title,
   labelEmail,
   inputEmail,
@@ -133,6 +143,31 @@ function showToast(text) {
   }, 4000);
 }
 
+function getCategory(category){
+  const filterCategory=state.products.filter((product)=> product.category===category);
+  return filterCategory;
+}
+
+function getProductsForCategory(event){  
+  loader.classList.add("loader-01");
+  document.body.classList.toggle('is-blur');
+  const div=wrapAllProducts.querySelectorAll('div');
+  setTimeout(() => {
+    allProducts=wrapAllProducts.querySelectorAll('article');
+    console.log("allProducts",allProducts)
+    for (let index = 0; index < allProducts.length; index++) {
+      allProducts[index].remove();
+      if(div[index]){
+        div[index].remove();
+      }
+    }
+    console.log(event.target.id);
+    const products=getCategory(event.target.id);
+    renderCarouselProducts(products, wrapAllProducts)
+    loader.classList.remove("loader-01");
+    document.body.classList.toggle('is-blur');
+  }, 1000);
+}
 /*********POST METHOD ***************/
 const postAddUser = async () => {};
 
@@ -245,7 +280,8 @@ function handleLogin() {
     btnSign.classList.add("modal__body-wrap-sign");
     title.classList.add("modal__body-wrap-title");
   }
-
+  btnSign.removeEventListener("click", handleSubmitSign);
+  
   title.textContent = "Accedi";
   //labelEmail
   labelEmail.textContent = "Indirizzo Email";
@@ -303,21 +339,35 @@ function handleLoginPassword() {
 
 function handleSubmitLogin() {
   event.preventDefault();
+  btnSign.removeEventListener("click", handleSubmitSign);
   const input = document.querySelector(".input");
   const inputValue = input.value;
   modal.classList.toggle("is-invisible");
   state.loginUser.password = inputValue;
-  state.users=localStorage.getItem('users')
-
+  state.users = JSON.parse(localStorage.getItem("users"));
+  console.log("state.users", state.users);
+  const spanUserName = document.querySelector(".sidebar__login-span");
+  let isCorrect = false;
+  /********************************************************************************************** */
   for (const key in state.users) {
-    if(state.users[key].username===state.loginUser.username){
-      if(state.users[key].username===state.loginUser.username){
+    if (state.users[key].email === state.loginUser.email) {
+      if (state.users[key].password === state.loginUser.password) {
         console.log("accesso eseguito");
+        btnLogin.textContent = `Benvenuto! `;
+        spanUserName.textContent = state.users[key].username;
+        btnLogin.append(spanUserName);
+        isCorrect = true;
+        btnLogin.removeEventListener("click", handleLogin);
+        btnLogin.disabled = true;
+        toast.classList.add("successfulLogin");
+        showToast("Accesso eseguito correttamente!!");
       }
     }
   }
-  console.log("dati incorretti")
-  // if(state.loginUser.username)
+  if (!isCorrect) {
+    toast.classList.add("unsuccessfulLogin");
+    showToast("I dati inseriti non sono corretti!");
+  }
   formLogin.removeEventListener("submit", handleSubmitLogin);
 }
 
@@ -326,7 +376,7 @@ function closeForm(event) {
   const target = event.target;
   if (target.classList.value === "modal__overlay") {
     modal.classList.add("is-invisible");
-  }
+  }S
 }
 
 /*************END LOGIN FORM *********/
@@ -384,27 +434,29 @@ function handleSign() {
   isStartSign = false;
   formLogin.addEventListener("submit", handleSubmitSign);
 }
+
 function handleSubmitSign() {
+  btnSign.removeEventListener("click", handleSubmitSign);
   event.preventDefault();
   const inputs = modal_body.querySelectorAll("input");
-  const newUser={
-    username:null,
-    email:null,
-    password:null,
+  const newUser = {
+    username: null,
+    email: null,
+    password: null,
   };
-  let count=0;
+  let count = 0;
   for (const key in newUser) {
-      newUser[key] = inputs[count].value;
-      count++;  
+    newUser[key] = inputs[count].value;
+    count++;
   }
   //creazione idRandom
-  newUser.id=(Math.floor((Math.random()*8888)+(Math.random()*451)));
-  state.users={
+  newUser.id = Math.floor(Math.random() * 8888 + Math.random() * 451);
+  state.users = {
     ...state.users,
-    newUser
-  }
-  const usersStringify=JSON.stringify(state.users)
-  localStorage.setItem("users",usersStringify);
+    newUser,
+  };
+  const usersStringify = JSON.stringify(state.users);
+  localStorage.setItem("users", usersStringify);
   modal.classList.toggle("is-invisible");
 }
 
@@ -417,6 +469,8 @@ async function handleMounted() {
   loader.classList.remove("loader-01");
   showToast("Nuovo Cliente?Accedi");
   console.log("state", state.users);
+  console.log(document.querySelector('#eletronic'))
+
 }
 
 /******event listener ******/
@@ -425,3 +479,4 @@ modal.addEventListener("click", closeForm);
 
 //btn
 btnLogin.addEventListener("click", handleLogin);
+listCategories.addEventListener('click',getProductsForCategory);
