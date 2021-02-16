@@ -24,10 +24,13 @@
       <nav class="sidebar">
         <img src="./assets/img/amazon_PNG11.png" />
         <ul class="sidebar_categories"></ul>
+        <button class="sidebar__login">Ciao, Accedi</button>
       </nav>
+      <div class="toast is-hidden"></div>
     </header>
-    <section class="wrap">
-      <!-- <div class="wrap__items">
+    <main>
+      <section class="wrap">
+        <!-- <div class="wrap__items">
             <h4 class="wrap__items-title">Product</h4>
             <div class="wrap__items-card">
                <a>
@@ -40,9 +43,18 @@
                 </a>
             </div>
         </div> -->
-    </section>
-    <!-- <div class="overlay is-blur"></div> -->
-    <div class="loader-01"></div>
-    <script src="./assets/js/index.js"></script>
+      </section>
+      <div class="modal is-invisible">
+        <div class="modal__overlay"></div>
+        <div class="modal__body">
+          <form class="formLogin">
+            <div class="modal__body-wrap-login is-invisible"></div>
+            <div class="modal__body-wrap-sign is-invisible"></div>
+          </form>
+        </div>
+      </div>
+      <div class="loader-01"></div>
+      <script src="./assets/js/index.js"></script>
+    </main>
   </body>
 </html>
