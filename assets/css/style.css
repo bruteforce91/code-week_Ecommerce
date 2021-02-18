@@ -3,7 +3,7 @@ body {
   font-family: "Source Sans Pro", sans-serif;
   background-color: #eaeded;
   position: relative;
-  height: 200vh;
+  max-height: 220vh;
 }
 
 .is-blur {
@@ -60,62 +60,77 @@ header {
   transform: scale(1.1);
 }
 
-.sidebar button:focus{
-    outline: none;
+.sidebar button:focus {
+  outline: none;
 }
 
-.sidebar__login{
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    color:white;
-    font-size: 0.9rem;
-    font-weight: bold;
-    margin-right: 30px;
-    letter-spacing: 1px;
+.sidebar__login {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: bold;
+  margin-right: 30px;
+  letter-spacing: 1px;
 }
-.sidebar__login span{
+.sidebar__login span {
   font-size: 20px;
-  color:rgb(255, 157, 0);
+  color: rgb(255, 157, 0);
 }
 
 .toast {
-    position: fixed;
-    top: 6.4%;
-    left: 80%;
-    right: 1%;
-    z-index: 1;
-    padding: 20px;
-    transition: 0.4s ease;
-    color: black;
-    background-color: rgba(246, 243, 191, 0.95);
-    transform: translateY(0px);
-    font-size: 0.8rem;
-    font-weight: bold;
-    text-align: center;
-    font-family: "Hammersmith One", sans-serif;
-    border-top-right-radius: 5px;
-    border-end-end-radius: 10px;
-  }
-  
- .successfulLogin{
-    left: 5%;
-    right:5%;
-    background-color: rgba(154, 255, 72, 0.95);
-    font-weight: bold;
-  }
+  position: fixed;
+  top: 6.4%;
+  left: 80%;
+  right: 1%;
+  z-index: 1;
+  padding: 20px;
+  transition: 0.4s ease;
+  color: black;
+  background-color: rgba(246, 243, 191, 0.95);
+  transform: translateY(0px);
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-align: center;
+  font-family: "Hammersmith One", sans-serif;
+  border-top-right-radius: 5px;
+  border-end-end-radius: 10px;
+}
 
-  .unsuccessfulLogin{
-    left: 5%;
-    right:5%;
-    background-color: rgba(214, 41, 41, 0.95);
-    font-weight: bold;
-  }
-  .is-hidden {
-    transform: translateY(-100px);
-    opacity: 0;
-  }
+.successfulLogin {
+  left: 5%;
+  right: 5%;
+  background-color: rgba(154, 255, 72, 0.95);
+  font-weight: bold;
+}
 
+.unsuccessfulLogin {
+  left: 5%;
+  right: 5%;
+  background-color: rgba(214, 41, 41, 0.95);
+  font-weight: bold;
+}
+.is-hidden {
+  transform: translateY(-100px);
+  opacity: 0;
+}
+.sidebar__cart {
+  margin-right: 10%;
+}
+.sidebar__cart button {
+  font-size: 40px;
+  background-color: #0f1111;
+  border: none;
+  outline: none;
+  color: white;
+  cursor: pointer;
+}
+.sidebar__cart-counter-items {
+  font-size: 25px;
+  font-weight: bold;
+  color: rgb(255, 157, 0);
+}
 /**END SIDEBAR***
 
 /*SECTION WRAP CAROUSEL */
@@ -126,6 +141,10 @@ header {
   justify-content: center;
   align-items: center;
   margin: 100px auto;
+}
+.wrap h2 {
+  letter-spacing: 2px;
+  font-weight: bold;
 }
 
 .wrap__items {
@@ -141,8 +160,7 @@ header {
   font-size: 24px;
   margin-bottom: 10px;
 }
-.wrap__items-card,
-a {
+.wrap__items-card {
   display: flex;
   height: 350px;
   max-width: 300px;
@@ -155,13 +173,20 @@ a {
   margin: 6px;
   box-sizing: border-box;
   cursor: pointer;
+  position: relative;
+}
+.wrap__items-card a {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 
-.wrap__items-card:hover{
+.wrap__items-card:hover {
   transform: translateY(-15px);
   transition: all 250ms ease-in-out;
 }
-
 
 .wrap__items-card img {
   width: 60%;
@@ -181,87 +206,100 @@ h5 {
 }
 
 /**MODAL***/
-.is-invisible{
-    display: none;
+.is-invisible {
+  display: none;
 }
-.modal__overlay{
-    position: absolute;
-    top:0;
-    left:0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0,0,0.7);
-    cursor: pointer;
-}
-
-.modal__body{
-    position:absolute;
-    width:350px;
-    height:500px;
-    top:8%;
-    left:40%;
-    background-color: white;
-    border-radius: 5px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    letter-spacing: 1px;
-}
-.modal__body-wrap-login,.modal__body-wrap-sign{
-    padding:20px;
-}
-.modal__body label,p,h6{
-    font-size: 14px;
-    margin:4px 0;
-}
-.modal__body input{
-    margin:10px 0px;
-    width: 90%;
-}
-.modal__body button{
-    width: 92%;
-    background: #f0c14b;
-    color: #111;
-    padding:4px 0;
-    border: none;
-    cursor: pointer;
-    margin: 10px 0 30px 0;
-}
-.modal__body button:hover{
-    background-color: #f6a000;
-    transition: background-color 0.3s;
+.modal__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  cursor: pointer;
 }
 
-.modal__body button:focus{
-    outline:none;
+.modal__body {
+  position: absolute;
+  min-width: 350px;
+  max-width: 450px;
+  min-height: 500px;
+  max-height: 650px;
+  top: 8%;
+  left: 40%;
+  background-color: white;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  letter-spacing: 1px;
 }
-.divider-break{
-    text-align: center;
-    position: relative;
-    top: 2px;
-    padding-top: 1px;
-    margin-bottom: 14px;
-    line-height: 0;
+.modal__body div {
+  padding: 20px;
+}
+.modal__body img {
+  width: 20%;
+  height: 25%;
+}
+.modal__body label,
+p,
+h6 {
+  font-size: 14px;
+  margin: 4px 0;
+}
+.modal__body input {
+  margin: 10px 0px;
+  width: 90%;
+  padding: 5px 10px;
+}
+.modal__body input:focus {
+  outline: #f6a000;
+  border: #f6a000 1px solid;
+}
+.modal__body button {
+  width: 92%;
+  background: #f0c14b;
+  color: #111;
+  padding: 4px 0;
+  border: none;
+  cursor: pointer;
+  margin: 10px 0 30px 0;
+}
+.modal__body button:hover {
+  background-color: #f6a000;
+  transition: background-color 0.3s;
+}
+
+.modal__body button:focus {
+  outline: none;
+}
+.divider-break {
+  text-align: center;
+  position: relative;
+  top: 2px;
+  padding-top: 1px;
+  margin-bottom: 14px;
+  line-height: 0;
 }
 
 /**LOADER***/
 .loader-01 {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    z-index:100;
-	  border: 0.4em dotted rgb(221, 141, 14);
-	  border-radius: 50%;
-	  animation: 1s loader-01 linear infinite;
-    width: 40px;
-    height: 40px;
+  position: fixed;
+  top: 25%;
+  left: 50%;
+  z-index: 100;
+  border: 0.4em dotted rgb(221, 141, 14);
+  border-radius: 50%;
+  animation: 1s loader-01 linear infinite;
+  width: 40px;
+  height: 40px;
 }
 
 @keyframes loader-01 {
-	0% {
-		transform: rotate(0deg);
-	}
-	100% {
-		transform: rotate(360deg);
-	}
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

@@ -25,6 +25,10 @@
         <img src="./assets/img/amazon_PNG11.png" />
         <ul class="sidebar_categories"></ul>
         <button class="sidebar__login">Ciao, Accedi<span class="sidebar__login-span"></span></button>
+        <div class="sidebar__cart">
+          <button><i class="fa fa-shopping-cart" aria-hidden="true"></i></button>
+          <span class="sidebar__cart-counter-items"></span>
+        </div>
       </nav>
       <div class="toast is-hidden"></div>
     </header>
@@ -44,16 +48,17 @@
             </div>
         </div> -->
       </section>
-      <div class="modal is-invisible">
-        <div class="modal__overlay"></div>
-        <div class="modal__body">
-          <form class="formLogin">
+      <form class="form">
+        <div class="modal is-invisible">
+          <div class="modal__overlay"></div>
+          <div class="modal__body">
             <div class="modal__body-wrap-login is-invisible"></div>
             <div class="modal__body-wrap-sign is-invisible"></div>
-          </form>
+            <div class="modal__body-wrap--produtct-details is-invisible"></div>
+          </div>
         </div>
-      </div>
-      <div class="loader-01"></div>
+      </form>
+        <div class="loader-01"></div>
       <script src="./assets/js/index.js"></script>
     </main>
   </body>
