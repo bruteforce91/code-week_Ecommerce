@@ -1,5 +1,6 @@
 //sidebar
 const listCategories = document.querySelector(".sidebar_categories");
+const countItemsSpan = document.querySelector(".sidebar__cart-counter-items");
 
 //loader e toast
 const loader = document.querySelector(".loader-01");
@@ -16,6 +17,7 @@ const wrapProductDetails = document.querySelector(
 );
 
 //btn
+const btnCartSidebar = document.querySelector(".sidebarCartBtn");
 const btnLogin = document.querySelector(".sidebar__login");
 const btnForm = document.querySelector(".modal__body-wrap-btnForm");
 const btnOpenModalSign = document.querySelector(".modal__body-wrap-sign");
@@ -30,13 +32,16 @@ const wrapSign = document.querySelector(".modal__body-wrap-sign");
 const label = document.querySelector(".label_input");
 const input = document.querySelector(".input");
 
-let btnContinue, btnSign, btnSignIn, btnAddProductInCart;
+let btnContinue, btnSign, btnSignIn, btnAddProductToCart;
+let isStart=true;
+let array=[];
+let count=0;
 /*************STATE AND CONFIG*********/
 const state = {
   config: {
     BASE_URL: "https://fakestoreapi.com/",
   },
-  products: null,
+  products: [{ 0: null }],
   categories: null,
   loginUser: null,
 };
@@ -94,6 +99,8 @@ const newSessionUser = async () => {
     getAllUsers(),
     postCreateCart(),
   ]);
+  const countItemsToCart = state.cart[0].products.length;
+  countItemsSpan.textContent = countItemsToCart;
   loader.classList.remove("loader-01");
 };
 
@@ -108,7 +115,8 @@ const loadOldSessionUser = () => {
 
   const cart = localStorage.getItem("cart");
   state.cart = JSON.parse(cart);
-
+  const countItemsToCart = state.cart[0].products.length;
+  countItemsSpan.textContent = countItemsToCart;
   console.log("STATE", state);
 };
 
@@ -222,7 +230,12 @@ const postCreateCart = async () => {
   })
     .then((res) => res.json())
     .then((json) => {
-      localStorage.setItem("cart", JSON.stringify(json));
+      localStorage.setItem(
+        "cart",
+        JSON.stringify([json, { count: 0 }, { pending: false }])
+      );
+      const cart = localStorage.getItem("cart");
+      state.cart = JSON.parse(cart);
     });
 };
 
@@ -235,7 +248,7 @@ function feedBack(feedbackStars) {
   }
   return stars;
 }
-function createParagrafAcceptCondition(){
+function createParagrafAcceptCondition() {
   const parag = document.createElement("p");
   parag.textContent = `Accedendo al tuo account dichiari di aver letto e accetti le
   nostre Condizioni generali di uso e vendita. Prendi visione
@@ -263,7 +276,7 @@ function createModalLogin() {
   btnContinue = document.createElement("button");
   btnContinue.classList.add("modal__body-wrap-btnForm");
   //p
-  const parag=createParagrafAcceptCondition()
+  const parag = createParagrafAcceptCondition();
 
   const divBreak = document.createElement("div");
   divBreak.classList.add("divider-break");
@@ -319,43 +332,42 @@ function handleLogin() {
 
   wrapLogin.append(wrap);
 }
-function createModalPasswordLogin(){
-  const wrap=document.createElement('div');
-  const input=modal_body.querySelectorAll('input');
-  const inputValue=input[0].value;
+function createModalPasswordLogin() {
+  const wrap = document.createElement("div");
+  const input = modal_body.querySelectorAll("input");
+  const inputValue = input[0].value;
   clearModalBody(wrapProductDetails);
   clearModalBody(wrapLogin);
   clearModalBody(wrapSign);
   state.loginUser = { email: inputValue };
-  const labelEmail=document.createElement('label')
+  const labelEmail = document.createElement("label");
   labelEmail.textContent = state.loginUser.email;
-  const title=document.createElement('h1');
+  const title = document.createElement("h1");
   title.textContent = "Password";
-  const inputPassword=document.createElement('input');
+  const inputPassword = document.createElement("input");
   inputPassword.type = "password";
-  inputPassword.placeholder="inserisci password"
-  const parag=createParagrafAcceptCondition()
-  wrap.append(title,labelEmail,inputPassword,parag)
+  inputPassword.placeholder = "inserisci password";
+  const parag = createParagrafAcceptCondition();
+  wrap.append(title, labelEmail, inputPassword, parag);
 
   return wrap;
-
 }
 function handleLoginPassword() {
   event.preventDefault();
-  const input=modal_body.querySelectorAll('input');
-  console.log(input)
+  const input = modal_body.querySelectorAll("input");
+  console.log(input);
   btnSign.removeEventListener("click", handleSign);
   form.addEventListener("submit", handleSubmitLogin);
 
-  const wrap=createModalPasswordLogin();
-  btnContinue=document.createElement('button');
+  const wrap = createModalPasswordLogin();
+  btnContinue = document.createElement("button");
   btnContinue.type = "submit";
   btnContinue.textContent = "Accedi";
 
   btnContinue.removeEventListener("click", handleLoginPassword);
   btnContinue.addEventListener("click", handleSubmitLogin);
   wrap.appendChild(btnContinue);
-  wrapLogin.append(wrap)
+  wrapLogin.append(wrap);
 }
 
 function handleSubmitLogin() {
@@ -372,6 +384,7 @@ function handleSubmitLogin() {
 
   /********************************************************************************************** */
   //control to login
+  let isCorrect = false;
   const user = localStorage.getItem("user");
   const parseUser = JSON.parse(user);
   console.log(parseUser);
@@ -410,7 +423,7 @@ function createModalSign() {
   clearModalBody(wrapProductDetails);
   clearModalBody(wrapLogin);
   clearModalBody(wrapSign);
-  const wrap=document.createElement('div');
+  const wrap = document.createElement("div");
 
   const title = document.createElement("h1");
   const labelPassword = document.createElement("label");
@@ -419,9 +432,9 @@ function createModalSign() {
   const inputConfirmPassword = document.createElement("input");
   const labelName = document.createElement("label");
   const inputName = document.createElement("input");
-  const labelEmail=document.createElement('label');
-  const inputEmail=document.createElement('input');
-  
+  const labelEmail = document.createElement("label");
+  const inputEmail = document.createElement("input");
+
   title.textContent = "Crea Account";
   inputEmail.type = "email";
   inputName.type = "text";
@@ -435,7 +448,7 @@ function createModalSign() {
   labelConfirmPassword.textContent = "Verifica Password";
   inputPassword.required = true;
   inputConfirmPassword.required = true;
-  btnSignIn=document.createElement('button');
+  btnSignIn = document.createElement("button");
   btnSignIn.textContent = "Crea il tuo account Amazon";
 
   wrap.append(
@@ -452,14 +465,13 @@ function createModalSign() {
   );
 
   return wrap;
-
 }
 function handleSign() {
   event.preventDefault();
   wrapLogin.classList.add("is-invisible");
   wrapSign.classList.remove("is-invisible");
   btnContinue.removeEventListener("click", handleLoginPassword);
-  const wrap=createModalSign();
+  const wrap = createModalSign();
 
   btnSignIn.addEventListener("click", handleSubmitSign);
   //append
@@ -472,7 +484,7 @@ function handleSubmitSign() {
   event.preventDefault();
   btnSignIn.removeEventListener("click", handleSubmitSign);
   const inputs = wrapSign.querySelectorAll("input");
-  console.log("inputs",inputs)
+  console.log("inputs", inputs);
   const newUser = {
     username: null,
     email: null,
@@ -497,6 +509,51 @@ function handleSubmitSign() {
   showToast("Registrazione effettuata con successo! Accedi");
 }
 /******END SIGN IN FORM*********/
+
+/*********CART*******/
+function addProductToCart() {
+  event.preventDefault();
+  const target = event.path[1].id; //prendo l'id del product selezionato
+  //localStorage.setItem("cart","")
+  const productToAddToCart = state.products.filter( (product) => product.id === +target); // search in products
+  let filterProductEguals;
+  let updateProduct;
+  //console.log("a chi sacciu",filterProductEguals)
+    let newProduct = {
+      ...productToAddToCart[0],
+      quantity: 1,
+    };
+    
+    array.push(newProduct);
+      array.map((val,index)=>{
+        filterProductEguals =array.filter((e)=>e.id===val.id);
+        console.log("PROVA",filterProductEguals)
+        updateProduct={
+          ...filterProductEguals[0],
+          quantity:filterProductEguals.length
+        }
+        state.cart[0].products=updateProduct
+        console.log("ai",state.cart[0].products)
+        
+      })
+      
+      const getLocalStorageCart=JSON.parse(localStorage.getItem("cart"));
+      getLocalStorageCart[0].products.push(updateProduct)
+      console.log("storage",getLocalStorageCart);
+      localStorage.setItem("cart",JSON.stringify(getLocalStorageCart))
+      console.log("storage",getLocalStorageCart);
+      state.cart=getLocalStorageCart;
+  
+
+  // //mi prendo il numero di elementi presenti nello state e parallelamente nel localStorage
+  const countItems = getLocalStorageCart[0].products.length;
+  const spanCountItems = document.querySelector(".sidebar__cart-counter-items");
+  spanCountItems.textContent = countItems.toString();
+
+  //add le modifiche nel localStorage
+  // localStorage.removeItem("cart");
+  // localStorage.setItem("cart", JSON.stringify(state.cart));
+}
 
 /*************RENDER CARDS, STARS AND CATEGORIES*********/
 function productCard(coverURL, id, stars, titleProduct, vote, priceProduct) {
@@ -575,6 +632,64 @@ function renderCarouselProducts(listItems, sectionNode, category) {
   });
   sectionNode.append(titleCarousel, listProducts);
 }
+function clearWrapProducts() {
+  loader.classList.add("loader-01");
+  document.body.classList.toggle("is-blur");
+  const div = wrapAllProducts.querySelectorAll("div");
+  const titleCarousel = wrapAllProducts.querySelectorAll("h2");
+  const allProducts = wrapAllProducts.querySelectorAll("article");
+  //console.log("allProducts", allProducts);
+  for (let index = 0; index < allProducts.length; index++) {
+    allProducts[index].remove();
+    if (div[index]) {
+      div[index].remove();
+    }
+    if (titleCarousel[index]) {
+      titleCarousel[index].remove();
+    }
+  }
+  setTimeout(() => {
+    loader.classList.remove("loader-01");
+    document.body.classList.toggle("is-blur");
+  }, 1000);
+}
+
+function renderCartProducts() {
+  clearWrapProducts();
+  const listProducts = document.createElement("div");
+  listProducts.classList.add("wrap__items");
+  const titleCarousel = document.createElement("h2");
+  titleCarousel.textContent = "Cart";
+  const allIdProduct=[]
+  state.cart[0].products.forEach((id)=>allIdProduct.push(id.id));
+  console.log("idProducts",allIdProduct)
+  let count=0;
+  let temp;
+  for (let i = 0; i< state.cart[0].products.length; i++) {
+    temp=i;
+    for (let j = i; j< state.cart[0].products.length; j++) {
+      if(state.cart[0].products[temp].id===state.cart[0].products[j].id){
+        console.log("hola",state.cart[0].products[j])
+        state.cart[0].products.splice(j,1);
+      }
+    }
+    
+  }
+
+  state.cart[0].products.forEach((product, index) => {
+    console.log(product);
+    const card = productCard(
+      product.image,
+      product.id,
+      product.stars,
+      product.title,
+      product.numFeedback,
+      product.price
+    );
+    listProducts.append(card);
+  });
+  wrapAllProducts.append(titleCarousel, listProducts);
+}
 
 function createWrapProductDetails(product) {
   const { title, description, image, price, category } = product;
@@ -589,22 +704,22 @@ function createWrapProductDetails(product) {
   imageProduct.src = image;
 
   const priceProduct = document.createElement("h3");
-  priceProduct.textContent = `€ ${price} + iva`;
+  priceProduct.textContent = `€ ${price} + Iva`;
 
   const categoryProduct = document.createElement("h4");
   categoryProduct.textContent = category;
 
-  btnAddProductInCart = document.createElement("button");
-  btnAddProductInCart.textContent = "Aggiungi al Carello";
-  btnAddProductInCart.addEventListener('click',)//////////////////////////////////
-  
+  btnAddProductToCart = document.createElement("button");
+  btnAddProductToCart.textContent = "Aggiungi al Carello";
+  btnAddProductToCart.addEventListener("click", addProductToCart);
+
   wrap.append(
     titleProduct,
     imageProduct,
     descriptionProduct,
     priceProduct,
     categoryProduct,
-    addProductInCart
+    btnAddProductToCart
   );
   return wrap;
 }
@@ -616,7 +731,7 @@ function renderProductDetails(event) {
   const idProduct = event.target.id;
   const productDetails = state.products[idProduct - 1]; //-1 perchè l'indice in state.products parte da 0
   const wrap = createWrapProductDetails(productDetails);
-
+  wrap.id = idProduct;
   modal.classList.toggle("is-invisible");
   wrapProductDetails.classList.remove("is-invisible");
   wrapProductDetails.append(wrap);
@@ -649,3 +764,4 @@ modal.addEventListener("click", closeModal);
 btnLogin.addEventListener("click", handleLogin);
 listCategories.addEventListener("click", getProductsForCategory);
 wrapAllProducts.addEventListener("click", renderProductDetails);
+btnCartSidebar.addEventListener("click", renderCartProducts);

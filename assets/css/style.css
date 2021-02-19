@@ -82,8 +82,8 @@ header {
 .toast {
   position: fixed;
   top: 6.4%;
-  left: 80%;
-  right: 1%;
+  left: 60%;
+  right: 20%;
   z-index: 1;
   padding: 20px;
   transition: 0.4s ease;
