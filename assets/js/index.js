@@ -696,6 +696,7 @@ function handlePayForm() {
 }
 async function handleSuccessPayment() {
   event.preventDefault();
+  wrapModalPay.classList.add("is-invisible");
   toast.classList.remove("pleaseLogin");
   toast.classList.remove("unsuccessfulLogin");
   toast.classList.remove("successfulLogin");
@@ -733,6 +734,7 @@ function addProductToCart() {
   const countItems = getLocalStorageCart[0].products.length;
   const spanCountItems = document.querySelector(".sidebar__cart-counter-items");
   spanCountItems.textContent = countItems.toString();
+  modal.classList.toggle("is-invisible");
 }
 function renderCartProducts() {
   clearWrapMainSection();
