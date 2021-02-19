@@ -32,6 +32,11 @@ header {
   max-width: 30%;
   max-height: 50%;
   margin-left: 20px;
+  cursor: pointer;
+}
+.sidebar img:hover{
+  transition: color 0.3s;
+  transform: scale(1.1);
 }
 .sidebar_categories {
   list-style: none;
@@ -115,9 +120,16 @@ header {
   left: 5%;
   right: 5%;
   top:15%;
-  
   background-color:rgba(246, 243, 191, 0.95);
   font-size: 15px;
+  font-weight: bold;
+}
+.completePay{
+  left: 5%;
+  right: 5%;
+  top:15%;
+  font-size: 25px;
+  background-color: rgba(154, 255, 72, 0.95);
   font-weight: bold;
 }
 .is-hidden {
