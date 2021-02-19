@@ -1,7 +1,7 @@
 //sidebar
 const listCategories = document.querySelector(".sidebar_categories");
 const countItemsSpan = document.querySelector(".sidebar__cart-counter-items");
-
+const sidebarCart=document.querySelector(".sidebar__cart");
 //loader e toast
 const loader = document.querySelector(".loader-01");
 const toast = document.querySelector(".toast");
@@ -15,12 +15,14 @@ const modal_overlay = document.querySelector(".modal__overlay");
 const wrapProductDetails = document.querySelector(
   ".modal__body-wrap--produtct-details"
 );
+const wrapModalPay=document.querySelector('modal__body-wrap--pay')
 
 //btn
 const btnCartSidebar = document.querySelector(".sidebarCartBtn");
 const btnLogin = document.querySelector(".sidebar__login");
 const btnForm = document.querySelector(".modal__body-wrap-btnForm");
 const btnOpenModalSign = document.querySelector(".modal__body-wrap-sign");
+const btnPurchase=document.querySelector(".btnPurchase");
 
 //wrap login form
 const form = document.querySelector(".form");
@@ -31,6 +33,9 @@ const wrapSign = document.querySelector(".modal__body-wrap-sign");
 //form
 const label = document.querySelector(".label_input");
 const input = document.querySelector(".input");
+
+//main
+const main=document.querySelector('.main__wrap')
 
 let btnContinue, btnSign, btnSignIn, btnAddProductToCart;
 let isStart=true;
@@ -187,6 +192,7 @@ function getCategory(category) {
 
 function getProductsForCategory(event) {
   loader.classList.add("loader-01");
+  clearWrapMainSection();
   document.body.classList.toggle("is-blur");
   const div = wrapAllProducts.querySelectorAll("div");
   const titleCarousel = wrapAllProducts.querySelectorAll("h2");
@@ -313,12 +319,7 @@ function createModalLogin() {
   btnContinue.addEventListener("click", handleLoginPassword);
   return wrap;
 }
-function clearModalBody(wrap) {
-  const allDivModalBody = wrap.querySelectorAll("div");
-  for (let index = 0; index < allDivModalBody.length; index++) {
-    allDivModalBody[index].remove();
-  }
-}
+
 function handleLogin() {
   event.preventDefault();
   modal.classList.toggle("is-invisible");
@@ -509,10 +510,15 @@ function handleSubmitSign() {
   showToast("Registrazione effettuata con successo! Accedi");
 }
 /******END SIGN IN FORM*********/
+/*********PAY FORM ******/
+function handlePayForm(){
+
+}
 
 /*********CART*******/
 function addProductToCart() {
   event.preventDefault();
+  btnPurchase.classList.toggle('is-invisible')
   const target = event.path[1].id; //prendo l'id del product selezionato
   //localStorage.setItem("cart","")
   const productToAddToCart = state.products.filter( (product) => product.id === +target); // search in products
@@ -523,40 +529,55 @@ function addProductToCart() {
       ...productToAddToCart[0],
       quantity: 1,
     };
-    
-    array.push(newProduct);
-      array.map((val,index)=>{
-        filterProductEguals =array.filter((e)=>e.id===val.id);
-        console.log("PROVA",filterProductEguals)
-        updateProduct={
-          ...filterProductEguals[0],
-          quantity:filterProductEguals.length
-        }
-        state.cart[0].products=updateProduct
-        console.log("ai",state.cart[0].products)
-        
-      })
-      
+   
       const getLocalStorageCart=JSON.parse(localStorage.getItem("cart"));
-      getLocalStorageCart[0].products.push(updateProduct)
-      console.log("storage",getLocalStorageCart);
+      getLocalStorageCart[0].products.push(newProduct)
       localStorage.setItem("cart",JSON.stringify(getLocalStorageCart))
-      console.log("storage",getLocalStorageCart);
-      state.cart=getLocalStorageCart;
+      
+      //state.cart=getLocalStorageCart;
   
 
   // //mi prendo il numero di elementi presenti nello state e parallelamente nel localStorage
   const countItems = getLocalStorageCart[0].products.length;
   const spanCountItems = document.querySelector(".sidebar__cart-counter-items");
   spanCountItems.textContent = countItems.toString();
+}
+function createWrapProductDetails(product) {
+  const { title, description, image, price, category } = product;
+  const wrap = document.createElement("div");
+  const titleProduct = document.createElement("h2");
+  titleProduct.textContent = title;
 
-  //add le modifiche nel localStorage
-  // localStorage.removeItem("cart");
-  // localStorage.setItem("cart", JSON.stringify(state.cart));
+  const descriptionProduct = document.createElement("p");
+  descriptionProduct.textContent = description;
+
+  const imageProduct = document.createElement("img");
+  imageProduct.src = image;
+
+  const priceProduct = document.createElement("h3");
+  priceProduct.textContent = `€ ${price} + Iva`;
+
+  const categoryProduct = document.createElement("h4");
+  categoryProduct.textContent = category;
+
+  btnAddProductToCart = document.createElement("button");
+  btnAddProductToCart.textContent = "Aggiungi al Carello";
+  btnAddProductToCart.addEventListener("click", addProductToCart);
+
+  wrap.append(
+    titleProduct,
+    imageProduct,
+    descriptionProduct,
+    priceProduct,
+    categoryProduct,
+    btnAddProductToCart
+  );
+  return wrap;
 }
 
+
 /*************RENDER CARDS, STARS AND CATEGORIES*********/
-function productCard(coverURL, id, stars, titleProduct, vote, priceProduct) {
+function productCard(coverURL, id, stars, titleProduct, vote, priceProduct,quantity) {
   const wrapCard = document.createElement("article");
   wrapCard.classList.add("wrap__items-card");
   const wrapAnchor = document.createElement("a");
@@ -580,9 +601,16 @@ function productCard(coverURL, id, stars, titleProduct, vote, priceProduct) {
   renderStars(stars, wrapFeedback);
   const votes = document.createElement("span");
   votes.textContent = vote;
-
-  wrapFeedback.append(votes);
-  wrapCard.append(imgProduct, product, price, wrapFeedback, wrapAnchor);
+  if(quantity){
+    const quantityProduct=document.createElement('span');
+    quantityProduct.textContent=`Quantità: ${quantity}`
+    wrapFeedback.append(votes);
+    wrapCard.append(imgProduct, product, price,quantityProduct, wrapFeedback, wrapAnchor);
+  }
+  else{
+    wrapFeedback.append(votes);
+    wrapCard.append(imgProduct, product, price, wrapFeedback, wrapAnchor);
+  }
 
   return wrapCard;
 }
@@ -632,6 +660,95 @@ function renderCarouselProducts(listItems, sectionNode, category) {
   });
   sectionNode.append(titleCarousel, listProducts);
 }
+
+function renderCartProducts() {
+  clearWrapProducts();
+  state.cart=JSON.parse(localStorage.getItem("cart"));
+  console.log("STATE_CART",state.cart)
+  const div=document.createElement('div');
+  const textTotalPrice=document.createElement('h3');
+  textTotalPrice.classList.add('wrap_price_total')
+  const btnAdd=document.createElement('btn');
+ 
+  let quantityArray=[]
+
+  console.log("Array",quantityArray)
+  state.cart[0].products.map((val,index)=>{
+    filterProductEguals =state.cart[0].products.filter((e)=>e.id===val.id);
+    console.log("PROVA",filterProductEguals)
+    let c=filterProductEguals.length
+    const updateProduct={
+      ...filterProductEguals[0],
+      quantity:c
+    }
+    if(!quantityArray.includes(val.id)){
+      quantityArray.push(updateProduct);
+    }
+  })
+
+  //elimino i doppioni
+  const uniqueProducts=arrayUnique(quantityArray);
+  //
+  const listProducts = document.createElement("div");
+  listProducts.classList.add("wrap__items");
+  const titleCarousel = document.createElement("h2");
+  titleCarousel.textContent = "Cart";
+
+  //UPDATE CART IN LOCAL STORAGE
+  const getLocalStorageCart=JSON.parse(localStorage.getItem("cart"));
+  getLocalStorageCart[0].products=uniqueProducts
+  localStorage.setItem("cart",JSON.stringify(getLocalStorageCart))
+  
+  //calcolo prezzo totale * quantità di ogni singolo prodotto
+  let priceForProduct,quantityForProduct,priceTotal=0,priceForAllQuantity;
+  uniqueProducts.forEach((elem)=>{
+    quantityForProduct=parseInt(elem.quantity);
+    priceForProduct=(+elem.price).toFixed(2);
+    priceForAllQuantity=quantityForProduct*priceForProduct;
+    priceTotal=(priceTotal+(+priceForAllQuantity));
+  }
+  )
+  console.log("price",priceTotal)
+  textTotalPrice.textContent=`Prezzo finale: € ${priceTotal} + IVA`
+  uniqueProducts.forEach((product, index) => {
+    console.log(product);
+    // quantityProduct.textContent=product.quantity;
+    const card = productCard(
+      product.image,
+      product.id,
+      product.stars,
+      product.title,
+      product.numFeedback,
+      product.price,
+      product.quantity
+    );
+    listProducts.append(card);
+  });
+  wrapAllProducts.append(textTotalPrice,titleCarousel, listProducts);
+}
+
+function renderProductDetails(event) {
+  clearModalBody(wrapProductDetails);
+  clearModalBody(wrapLogin);
+  clearModalBody(wrapSign);
+  const idProduct = event.target.id;
+  const productDetails = state.products[idProduct - 1]; //-1 perchè l'indice in state.products parte da 0
+  const wrap = createWrapProductDetails(productDetails);
+  wrap.id = idProduct;
+  modal.classList.toggle("is-invisible");
+  wrapProductDetails.classList.remove("is-invisible");
+  wrapProductDetails.append(wrap);
+}
+function renderBtnPurchase(){
+  const getCart=JSON.parse(localStorage.getItem("cart"));
+  if(getCart[0].products.length>=1){
+    btnPurchase.classList.remove('is-invisible')
+  }
+}
+
+/*************END RENDER CARDS AND CATEGORIES*********/
+
+/**********CLEAR SECTION *********/
 function clearWrapProducts() {
   loader.classList.add("loader-01");
   document.body.classList.toggle("is-blur");
@@ -654,90 +771,33 @@ function clearWrapProducts() {
   }, 1000);
 }
 
-function renderCartProducts() {
-  clearWrapProducts();
-  const listProducts = document.createElement("div");
-  listProducts.classList.add("wrap__items");
-  const titleCarousel = document.createElement("h2");
-  titleCarousel.textContent = "Cart";
-  const allIdProduct=[]
-  state.cart[0].products.forEach((id)=>allIdProduct.push(id.id));
-  console.log("idProducts",allIdProduct)
-  let count=0;
-  let temp;
-  for (let i = 0; i< state.cart[0].products.length; i++) {
-    temp=i;
-    for (let j = i; j< state.cart[0].products.length; j++) {
-      if(state.cart[0].products[temp].id===state.cart[0].products[j].id){
-        console.log("hola",state.cart[0].products[j])
-        state.cart[0].products.splice(j,1);
-      }
-    }
-    
+function clearWrapMainSection(){
+  const textTotalPrice = main.querySelectorAll("h3");
+  for (let index = 0; index < textTotalPrice.length; index++) {
+    textTotalPrice[index].remove();
   }
-
-  state.cart[0].products.forEach((product, index) => {
-    console.log(product);
-    const card = productCard(
-      product.image,
-      product.id,
-      product.stars,
-      product.title,
-      product.numFeedback,
-      product.price
-    );
-    listProducts.append(card);
-  });
-  wrapAllProducts.append(titleCarousel, listProducts);
 }
 
-function createWrapProductDetails(product) {
-  const { title, description, image, price, category } = product;
-  const wrap = document.createElement("div");
-  const titleProduct = document.createElement("h2");
-  titleProduct.textContent = title;
-
-  const descriptionProduct = document.createElement("p");
-  descriptionProduct.textContent = description;
-
-  const imageProduct = document.createElement("img");
-  imageProduct.src = image;
-
-  const priceProduct = document.createElement("h3");
-  priceProduct.textContent = `€ ${price} + Iva`;
-
-  const categoryProduct = document.createElement("h4");
-  categoryProduct.textContent = category;
-
-  btnAddProductToCart = document.createElement("button");
-  btnAddProductToCart.textContent = "Aggiungi al Carello";
-  btnAddProductToCart.addEventListener("click", addProductToCart);
-
-  wrap.append(
-    titleProduct,
-    imageProduct,
-    descriptionProduct,
-    priceProduct,
-    categoryProduct,
-    btnAddProductToCart
-  );
-  return wrap;
+function clearModalBody(wrap) {
+  const allDivModalBody = wrap.querySelectorAll("div");
+  for (let index = 0; index < allDivModalBody.length; index++) {
+    allDivModalBody[index].remove();
+  }
 }
+/**********CLEAR SECTION *********/ 
 
-function renderProductDetails(event) {
-  clearModalBody(wrapProductDetails);
-  clearModalBody(wrapLogin);
-  clearModalBody(wrapSign);
-  const idProduct = event.target.id;
-  const productDetails = state.products[idProduct - 1]; //-1 perchè l'indice in state.products parte da 0
-  const wrap = createWrapProductDetails(productDetails);
-  wrap.id = idProduct;
-  modal.classList.toggle("is-invisible");
-  wrapProductDetails.classList.remove("is-invisible");
-  wrapProductDetails.append(wrap);
-}
+/**************UTILITY PER ELIMINARE OBJECT DOPPIONI */
+const serializeArr = arr => {
+  return arr.map(obj => { return JSON.stringify(obj); });
+};
 
-/*************END RENDER CARDS AND CATEGORIES*********/
+const arrayUnique = arr => {
+  let objects = serializeArr(arr);
+  let unique = [...new Set(objects)];
+  return unique.map(str => { return JSON.parse(str); } );
+};
+/**************END UTILITY PER ELIMINARE OBJECT DOPPIONI */
+
 async function handleMounted() {
   // document.body.classList.add('is-blur');
   const newSession = localStorage.getItem("loadSession");
@@ -752,12 +812,13 @@ async function handleMounted() {
     }, 1000);
   }
   showToast("Nuovo Cliente?Accedi");
+  renderBtnPurchase();
   // console.log("state", state.users);
   // console.log(document.querySelector('#eletronic'))
 }
 
 /******event listener ******/
-document.addEventListener("DOMContentLoaded", handleMounted);
+document.addEventListener("DOMContentLoaded", handleMounted,{once:true});
 modal.addEventListener("click", closeModal);
 
 //btn
@@ -765,3 +826,4 @@ btnLogin.addEventListener("click", handleLogin);
 listCategories.addEventListener("click", getProductsForCategory);
 wrapAllProducts.addEventListener("click", renderProductDetails);
 btnCartSidebar.addEventListener("click", renderCartProducts);
+btnPurchase.addEventListener("click",handlePayForm)

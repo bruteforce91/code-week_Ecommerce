@@ -1,6 +1,6 @@
 body {
   margin: 0;
-  font-family: "Source Sans Pro", sans-serif;
+  font-family: 'Baloo 2', sans-serif;
   background-color: #eaeded;
   position: relative;
   max-height: 220vh;
@@ -131,8 +131,36 @@ header {
   font-weight: bold;
   color: rgb(255, 157, 0);
 }
-/**END SIDEBAR***
+/**END SIDEBAR****/
+.main__wrap{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    align-items: center;
+    box-sizing: border-box;
+    padding-top: 70px;
+  }
 
+.btnPurchase{
+  padding:20px;
+  border-radius: 10px;
+  font-size: 20px;
+  background-color:rgb(255, 191, 88);
+  color: rgb(24, 23, 23);
+  font-weight: 900;
+  cursor: pointer;
+  border: none;
+}
+.btnPurchase:hover{
+  background-color: #f6a000;
+  transform: scale(1.1);
+  transition: background-color 0.3s;
+}
+.btnPurchase:focus{
+  outline: none;
+}
 /*SECTION WRAP CAROUSEL */
 .wrap {
   display: flex;
@@ -140,7 +168,12 @@ header {
   width: 100%;
   justify-content: center;
   align-items: center;
-  margin: 100px auto;
+  margin: 50px auto 0px auto;
+}
+.wrap_price_total{
+  font-size: 25px;
+  letter-spacing: 2px;
+  font-weight: 700;
 }
 .wrap h2 {
   letter-spacing: 2px;
