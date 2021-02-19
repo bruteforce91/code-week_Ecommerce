@@ -1,7 +1,7 @@
 //sidebar
 const listCategories = document.querySelector(".sidebar_categories");
 const countItemsSpan = document.querySelector(".sidebar__cart-counter-items");
-const sidebarCart=document.querySelector(".sidebar__cart");
+const sidebarCart = document.querySelector(".sidebar__cart");
 //loader e toast
 const loader = document.querySelector(".loader-01");
 const toast = document.querySelector(".toast");
@@ -15,14 +15,15 @@ const modal_overlay = document.querySelector(".modal__overlay");
 const wrapProductDetails = document.querySelector(
   ".modal__body-wrap--produtct-details"
 );
-const wrapModalPay=document.querySelector('modal__body-wrap--pay')
+const wrapInsertCardPay=document.querySelector(".modal__body-wrap--insertCardPay");
+const wrapModalPay = document.querySelector(".modal__body-wrap--pay");
 
 //btn
 const btnCartSidebar = document.querySelector(".sidebarCartBtn");
 const btnLogin = document.querySelector(".sidebar__login");
 const btnForm = document.querySelector(".modal__body-wrap-btnForm");
 const btnOpenModalSign = document.querySelector(".modal__body-wrap-sign");
-const btnPurchase=document.querySelector(".btnPurchase");
+const btnPurchase = document.querySelector(".btnPurchase");
 
 //wrap login form
 const form = document.querySelector(".form");
@@ -35,12 +36,12 @@ const label = document.querySelector(".label_input");
 const input = document.querySelector(".input");
 
 //main
-const main=document.querySelector('.main__wrap')
+const main = document.querySelector(".main__wrap");
 
 let btnContinue, btnSign, btnSignIn, btnAddProductToCart;
-let isStart=true;
-let array=[];
-let count=0;
+let isStart = true;
+let array = [];
+let count = 0;
 /*************STATE AND CONFIG*********/
 const state = {
   config: {
@@ -49,6 +50,7 @@ const state = {
   products: [{ 0: null }],
   categories: null,
   loginUser: null,
+  isLogin:false
 };
 
 const getData = async (url) => {
@@ -325,9 +327,13 @@ function handleLogin() {
   modal.classList.toggle("is-invisible");
   wrapSign.classList.add("is-invisible");
   wrapLogin.classList.remove("is-invisible");
+  wrapModalPay.classList.add('is-invisible');
+  wrapInsertCardPay.classList.add('is-invisible')
   clearModalBody(wrapProductDetails);
   clearModalBody(wrapLogin);
   clearModalBody(wrapSign);
+  clearModalBody(wrapModalPay);
+  clearModalBody(wrapInsertCardPay)
 
   const wrap = createModalLogin();
 
@@ -398,13 +404,18 @@ function handleSubmitLogin() {
       isCorrect = true;
       btnLogin.removeEventListener("click", handleLogin);
       btnLogin.disabled = true;
+      toast.classList.remove("pleaseLogin");
       toast.classList.remove("unsuccessfulLogin");
       toast.classList.add("successfulLogin");
       showToast("Accesso eseguito correttamente!!");
-      formLogin.removeEventListener("submit", handleSubmitLogin);
+      form.removeEventListener("submit", handleSubmitLogin);
+      state.isLogin=true;
+      console.log("STATEINLOGIN",state.isLogin)
     }
   }
   if (!isCorrect) {
+    toast.classList.remove("pleaseLogin");
+    toast.classList.remove("successfulLogin");
     toast.classList.add("unsuccessfulLogin");
     showToast("I dati inseriti non sono corretti!");
   }
@@ -422,8 +433,9 @@ function closeModal(event) {
 /**************SIGN IN FORM ***********/
 function createModalSign() {
   clearModalBody(wrapProductDetails);
-  clearModalBody(wrapLogin);
-  clearModalBody(wrapSign);
+  clearModalBody(wrapLogin)
+  clearModalBody(wrapModalPay);
+  clearModalBody(wrapInsertCardPay)
   const wrap = document.createElement("div");
 
   const title = document.createElement("h1");
@@ -469,10 +481,12 @@ function createModalSign() {
 }
 function handleSign() {
   event.preventDefault();
-  wrapLogin.classList.add("is-invisible");
   wrapSign.classList.remove("is-invisible");
-  btnContinue.removeEventListener("click", handleLoginPassword);
+  wrapLogin.classList.add("is-invisible");
+  wrapModalPay.classList.add('is-invisible');
+  wrapInsertCardPay.classList.add('is-invisible')
   const wrap = createModalSign();
+  btnContinue.removeEventListener("click", handleLoginPassword);
 
   btnSignIn.addEventListener("click", handleSubmitSign);
   //append
@@ -510,38 +524,281 @@ function handleSubmitSign() {
   showToast("Registrazione effettuata con successo! Accedi");
 }
 /******END SIGN IN FORM*********/
-/*********PAY FORM ******/
-function handlePayForm(){
 
+/*********PAY FORM ******/
+function calculateIva(price){
+  return parseFloat(price/100*22)
+}
+
+function createModalPay() {
+  const input = modal_body.querySelectorAll("input");
+  let numberCard;
+  for (let index = 0; index < input.length; index++) {
+    if(index===0){
+      numberCard=input[index].value
+    }
+    
+  }
+
+  const wrap = document.createElement("div");
+
+  const title = document.createElement("h1");
+  const username = document.createElement("h3");
+  const email = document.createElement("h3");
+  const numCard = document.createElement("h3");
+  const idUser = document.createElement("h4");
+  const idCarello = document.createElement("h4");
+  const ulListProduct = document.createElement("ul");
+  const totalPriceWithoutIva = document.createElement("h4");
+  const Iva = document.createElement("h4");
+  const totalPrice = document.createElement("h2");
+  const btnPay = document.createElement("button");
+
+  //get data LocalStorage
+  const userData=JSON.parse(localStorage.getItem('user'));
+  const productsCart=JSON.parse(localStorage.getItem('cart'));
+  const totalPriceCart=JSON.parse(localStorage.getItem('TotalPriceCart'));
+  console.log("products",productsCart)
+  title.textContent = "Riepilogo";
+  username.textContent=`username: ${userData.username}`;
+  email.textContent=`email: ${userData.email}`;
+  numCard.textContent=`Numero Card: ${numberCard}`
+  idUser.textContent=`ID-User: ${userData.id}`
+  idCarello.textContent=`ID-Cart: ${totalPriceCart[1]}`
+  productsCart[0].products.forEach((elem)=>{
+    const li=document.createElement('li');
+    let quantityForProduct = parseInt(elem.quantity);
+    let priceForProduct = (+elem.price).toFixed(2);
+    let priceForAllQuantity = quantityForProduct * priceForProduct;
+    li.textContent=`${elem.title} Quantità:${elem.quantity} Price:${priceForAllQuantity} +Iva`;
+    ulListProduct.appendChild(li);
+  })
+  totalPriceWithoutIva.textContent=`€ ${totalPriceCart[0].totalPrice}`
+  const totalIva=(calculateIva(+totalPriceCart[0].totalPrice)).toFixed(2)
+  Iva.textContent=`€ ${totalIva}`;
+  const calculateTotalPrice=(parseFloat(totalIva) +parseFloat(totalPriceCart[0].totalPrice)).toFixed(2);
+  totalPrice.textContent=`Totale € ${calculateTotalPrice}`
+  btnPay.textContent = "PAGA ADESSO";
+
+  wrap.append(
+    title,
+    username,
+    email,
+    numCard,
+    idUser,
+    idCarello,
+    ulListProduct,
+    totalPriceWithoutIva,
+    Iva,
+    totalPrice,
+    btnPay
+  );
+
+  return wrap;
+}
+function createModalPayCard(){
+  const wrap = document.createElement("div");
+
+  const title = document.createElement("h1");
+  const username = document.createElement("h3");
+  const email = document.createElement("h3");
+  const idUser = document.createElement("h4");
+  const labelInputCardPayment=document.createElement('label')
+  const inputCardPayment = document.createElement("input");
+  const labelInputExpiredCard=document.createElement('label')
+  const inputCardExpiredCard = document.createElement("input");
+  const labelInputCVC=document.createElement('label')
+  const inputCvC = document.createElement("input");
+  const imgCards=document.createElement('img');
+  imgCards.src="./assets/img/payCards.png";
+  imgCards.id="cardPaysImg"
+  const btnPay = document.createElement("button");
+
+  //get data LocalStorage
+  const userData=JSON.parse(localStorage.getItem('user'));
+  const productsCart=JSON.parse(localStorage.getItem('cart'));
+  console.log("products",productsCart)
+  title.textContent = "Dati Pagamento";
+  username.textContent=`username: ${userData.username}`;
+  email.textContent=`email: ${userData.email}`;
+  idUser.textContent=`ID-User: ${userData.id}`;
+
+  btnPay.textContent = "CONTINUA IL PAGAMENTO";
+  
+  labelInputCardPayment.textContent="Numero di carta";
+  inputCardPayment.type="number";
+  labelInputExpiredCard.textContent="Data di scadenza";
+  inputCardExpiredCard.type="number";
+  labelInputCVC.textContent="CVC";
+  inputCvC.type="number";
+
+  wrap.append(
+    title,
+    username,
+    email,
+    idUser,
+    labelInputCardPayment,
+    inputCardPayment,
+    labelInputExpiredCard,
+    inputCardExpiredCard,
+    labelInputCVC,
+    inputCvC,
+    imgCards,
+    btnPay
+  );
+  btnPay.addEventListener('click',handlePayForm)
+  return wrap;
+}
+function handleInsertCardPayment(){
+  clearModalBody(wrapProductDetails);
+  clearModalBody(wrapLogin);
+  clearModalBody(wrapSign);
+  clearModalBody(wrapModalPay);
+  clearModalBody(wrapInsertCardPay)
+  console.log("STATE-LOGIN",state.isLogin)
+  if(state.isLogin){
+  modal.classList.toggle("is-invisible");
+  wrapSign.classList.add("is-invisible");
+  wrapLogin.classList.add("is-invisible");
+  wrapModalPay.classList.add('is-invisible');
+  wrapInsertCardPay.classList.remove('is-invisible')
+
+  const div=createModalPayCard();
+  wrapInsertCardPay.appendChild(div);
+  }
+  else{
+    toast.classList.remove("pleaseLogin");
+    toast.classList.remove("successfulLogin");
+    toast.classList.add("pleaseLogin");
+    showToast("Accedi prima di continuare");
+  }
+}
+function handlePayForm() {
+  clearModalBody(wrapProductDetails);
+  clearModalBody(wrapLogin);
+  clearModalBody(wrapSign);
+  clearModalBody(wrapModalPay);
+  wrapSign.classList.add("is-invisible");
+  wrapLogin.classList.add("is-invisible");
+  wrapModalPay.classList.remove('is-invisible');
+  wrapInsertCardPay.classList.add('is-invisible')
+  const div=createModalPay()
+  clearModalBody(wrapInsertCardPay)
+  wrapModalPay.appendChild(div);
 }
 
 /*********CART*******/
 function addProductToCart() {
   event.preventDefault();
-  btnPurchase.classList.toggle('is-invisible')
+  btnPurchase.classList.remove("is-invisible");
   const target = event.path[1].id; //prendo l'id del product selezionato
   //localStorage.setItem("cart","")
-  const productToAddToCart = state.products.filter( (product) => product.id === +target); // search in products
+  const productToAddToCart = state.products.filter(
+    (product) => product.id === +target
+  ); // search in products
   let filterProductEguals;
   let updateProduct;
   //console.log("a chi sacciu",filterProductEguals)
-    let newProduct = {
-      ...productToAddToCart[0],
-      quantity: 1,
-    };
-   
-      const getLocalStorageCart=JSON.parse(localStorage.getItem("cart"));
-      getLocalStorageCart[0].products.push(newProduct)
-      localStorage.setItem("cart",JSON.stringify(getLocalStorageCart))
-      
-      //state.cart=getLocalStorageCart;
-  
+  let newProduct = {
+    ...productToAddToCart[0],
+    quantity: 1,
+  };
+
+  const getLocalStorageCart = JSON.parse(localStorage.getItem("cart"));
+  getLocalStorageCart[0].products.push(newProduct);
+  localStorage.setItem("cart", JSON.stringify(getLocalStorageCart));
+
+  //state.cart=getLocalStorageCart;
 
   // //mi prendo il numero di elementi presenti nello state e parallelamente nel localStorage
   const countItems = getLocalStorageCart[0].products.length;
   const spanCountItems = document.querySelector(".sidebar__cart-counter-items");
   spanCountItems.textContent = countItems.toString();
 }
+function renderCartProducts() {
+  clearWrapMainSection();
+  clearWrapProducts();
+  state.cart = JSON.parse(localStorage.getItem("cart"));
+  console.log("STATE_CART", state.cart);
+  const div = document.createElement("div");
+  const textTotalPrice = document.createElement("h3");
+  textTotalPrice.classList.add("wrap_price_total");
+  const btnRemoveAll = document.createElement("button");
+  btnRemoveAll.textContent="Svuota";
+  btnRemoveAll.classList.add("btnRemoveAllProducts");
+  btnRemoveAll.addEventListener('click',handleResetCart)
+
+  let quantityArray = [];
+
+  console.log("Array", quantityArray);
+  state.cart[0].products.map((val, index) => {
+    filterProductEguals = state.cart[0].products.filter((e) => e.id === val.id);
+    console.log("PROVA", filterProductEguals);
+    let c = filterProductEguals.length;
+    const updateProduct = {
+      ...filterProductEguals[0],
+      quantity: c,
+    };
+    if (!quantityArray.includes(val.id)) {
+      quantityArray.push(updateProduct);
+    }
+  });
+
+  //elimino i doppioni
+  const uniqueProducts = arrayUnique(quantityArray);
+  //
+  const listProducts = document.createElement("div");
+  listProducts.classList.add("wrap__items");
+  const titleCarousel = document.createElement("h2");
+  titleCarousel.textContent = "Cart";
+
+  //UPDATE CART IN LOCAL STORAGE
+  const getLocalStorageCart = JSON.parse(localStorage.getItem("cart"));
+  getLocalStorageCart[0].products = uniqueProducts;
+  localStorage.setItem("cart", JSON.stringify(getLocalStorageCart));
+
+  //calcolo prezzo totale * quantità di ogni singolo prodotto
+  let priceForProduct,
+    quantityForProduct,
+    priceTotal = 0,
+    priceForAllQuantity;
+  uniqueProducts.forEach((elem) => {
+    quantityForProduct = parseInt(elem.quantity);
+    priceForProduct = (+elem.price).toFixed(2);
+    priceForAllQuantity = quantityForProduct * priceForProduct;
+    priceTotal = priceTotal + +priceForAllQuantity;
+  });
+
+  console.log("price", priceTotal);
+  textTotalPrice.textContent = `Total Price: € ${priceTotal} + IVA`;
+  ////UPDATE PRICE IN LOCAL STORAGE CART
+  const objTotalPrice = { totalPrice: priceTotal };
+  localStorage.setItem(
+    "TotalPriceCart",
+    JSON.stringify([objTotalPrice, state.cart[0]._id])
+  );
+
+  uniqueProducts.forEach((product, index) => {
+    console.log(product);
+    // quantityProduct.textContent=product.quantity;
+    const card = productCard(
+      product.image,
+      product.id,
+      product.stars,
+      product.title,
+      product.numFeedback,
+      product.price,
+      product.quantity
+    );
+    listProducts.append(card);
+  });
+  wrapAllProducts.append(textTotalPrice,btnRemoveAll, titleCarousel, listProducts);
+}
+function handleResetCart(){
+  
+}
+/*********END CART*******/
+/*************RENDER CARDS, STARS AND CATEGORIES*********/
 function createWrapProductDetails(product) {
   const { title, description, image, price, category } = product;
   const wrap = document.createElement("div");
@@ -574,10 +831,15 @@ function createWrapProductDetails(product) {
   );
   return wrap;
 }
-
-
-/*************RENDER CARDS, STARS AND CATEGORIES*********/
-function productCard(coverURL, id, stars, titleProduct, vote, priceProduct,quantity) {
+function productCard(
+  coverURL,
+  id,
+  stars,
+  titleProduct,
+  vote,
+  priceProduct,
+  quantity
+) {
   const wrapCard = document.createElement("article");
   wrapCard.classList.add("wrap__items-card");
   const wrapAnchor = document.createElement("a");
@@ -601,13 +863,19 @@ function productCard(coverURL, id, stars, titleProduct, vote, priceProduct,quant
   renderStars(stars, wrapFeedback);
   const votes = document.createElement("span");
   votes.textContent = vote;
-  if(quantity){
-    const quantityProduct=document.createElement('span');
-    quantityProduct.textContent=`Quantità: ${quantity}`
+  if (quantity) {
+    const quantityProduct = document.createElement("span");
+    quantityProduct.textContent = `Quantità: ${quantity}`;
     wrapFeedback.append(votes);
-    wrapCard.append(imgProduct, product, price,quantityProduct, wrapFeedback, wrapAnchor);
-  }
-  else{
+    wrapCard.append(
+      imgProduct,
+      product,
+      price,
+      quantityProduct,
+      wrapFeedback,
+      wrapAnchor
+    );
+  } else {
     wrapFeedback.append(votes);
     wrapCard.append(imgProduct, product, price, wrapFeedback, wrapAnchor);
   }
@@ -661,71 +929,7 @@ function renderCarouselProducts(listItems, sectionNode, category) {
   sectionNode.append(titleCarousel, listProducts);
 }
 
-function renderCartProducts() {
-  clearWrapProducts();
-  state.cart=JSON.parse(localStorage.getItem("cart"));
-  console.log("STATE_CART",state.cart)
-  const div=document.createElement('div');
-  const textTotalPrice=document.createElement('h3');
-  textTotalPrice.classList.add('wrap_price_total')
-  const btnAdd=document.createElement('btn');
- 
-  let quantityArray=[]
 
-  console.log("Array",quantityArray)
-  state.cart[0].products.map((val,index)=>{
-    filterProductEguals =state.cart[0].products.filter((e)=>e.id===val.id);
-    console.log("PROVA",filterProductEguals)
-    let c=filterProductEguals.length
-    const updateProduct={
-      ...filterProductEguals[0],
-      quantity:c
-    }
-    if(!quantityArray.includes(val.id)){
-      quantityArray.push(updateProduct);
-    }
-  })
-
-  //elimino i doppioni
-  const uniqueProducts=arrayUnique(quantityArray);
-  //
-  const listProducts = document.createElement("div");
-  listProducts.classList.add("wrap__items");
-  const titleCarousel = document.createElement("h2");
-  titleCarousel.textContent = "Cart";
-
-  //UPDATE CART IN LOCAL STORAGE
-  const getLocalStorageCart=JSON.parse(localStorage.getItem("cart"));
-  getLocalStorageCart[0].products=uniqueProducts
-  localStorage.setItem("cart",JSON.stringify(getLocalStorageCart))
-  
-  //calcolo prezzo totale * quantità di ogni singolo prodotto
-  let priceForProduct,quantityForProduct,priceTotal=0,priceForAllQuantity;
-  uniqueProducts.forEach((elem)=>{
-    quantityForProduct=parseInt(elem.quantity);
-    priceForProduct=(+elem.price).toFixed(2);
-    priceForAllQuantity=quantityForProduct*priceForProduct;
-    priceTotal=(priceTotal+(+priceForAllQuantity));
-  }
-  )
-  console.log("price",priceTotal)
-  textTotalPrice.textContent=`Prezzo finale: € ${priceTotal} + IVA`
-  uniqueProducts.forEach((product, index) => {
-    console.log(product);
-    // quantityProduct.textContent=product.quantity;
-    const card = productCard(
-      product.image,
-      product.id,
-      product.stars,
-      product.title,
-      product.numFeedback,
-      product.price,
-      product.quantity
-    );
-    listProducts.append(card);
-  });
-  wrapAllProducts.append(textTotalPrice,titleCarousel, listProducts);
-}
 
 function renderProductDetails(event) {
   clearModalBody(wrapProductDetails);
@@ -739,10 +943,10 @@ function renderProductDetails(event) {
   wrapProductDetails.classList.remove("is-invisible");
   wrapProductDetails.append(wrap);
 }
-function renderBtnPurchase(){
-  const getCart=JSON.parse(localStorage.getItem("cart"));
-  if(getCart[0].products.length>=1){
-    btnPurchase.classList.remove('is-invisible')
+function renderBtnPurchase() {
+  const getCart = JSON.parse(localStorage.getItem("cart"));
+  if (getCart[0].products.length >= 1) {
+    btnPurchase.classList.remove("is-invisible");
   }
 }
 
@@ -771,7 +975,7 @@ function clearWrapProducts() {
   }, 1000);
 }
 
-function clearWrapMainSection(){
+function clearWrapMainSection() {
   const textTotalPrice = main.querySelectorAll("h3");
   for (let index = 0; index < textTotalPrice.length; index++) {
     textTotalPrice[index].remove();
@@ -784,17 +988,21 @@ function clearModalBody(wrap) {
     allDivModalBody[index].remove();
   }
 }
-/**********CLEAR SECTION *********/ 
+/**********CLEAR SECTION *********/
 
 /**************UTILITY PER ELIMINARE OBJECT DOPPIONI */
-const serializeArr = arr => {
-  return arr.map(obj => { return JSON.stringify(obj); });
+const serializeArr = (arr) => {
+  return arr.map((obj) => {
+    return JSON.stringify(obj);
+  });
 };
 
-const arrayUnique = arr => {
+const arrayUnique = (arr) => {
   let objects = serializeArr(arr);
   let unique = [...new Set(objects)];
-  return unique.map(str => { return JSON.parse(str); } );
+  return unique.map((str) => {
+    return JSON.parse(str);
+  });
 };
 /**************END UTILITY PER ELIMINARE OBJECT DOPPIONI */
 
@@ -818,7 +1026,7 @@ async function handleMounted() {
 }
 
 /******event listener ******/
-document.addEventListener("DOMContentLoaded", handleMounted,{once:true});
+document.addEventListener("DOMContentLoaded", handleMounted, { once: true });
 modal.addEventListener("click", closeModal);
 
 //btn
@@ -826,4 +1034,4 @@ btnLogin.addEventListener("click", handleLogin);
 listCategories.addEventListener("click", getProductsForCategory);
 wrapAllProducts.addEventListener("click", renderProductDetails);
 btnCartSidebar.addEventListener("click", renderCartProducts);
-btnPurchase.addEventListener("click",handlePayForm)
+btnPurchase.addEventListener("click", handleInsertCardPayment);
